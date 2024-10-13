@@ -3,11 +3,15 @@ from kmeans import KMeans
 
 class SpectralClustering:
     
-    def __init__(self, n_clusters, n_neighbors=10, gamma=1.0, affinity='rbf'):
+    def __init__(self, n_clusters, n_neighbors=10, affinity='rbf', gamma=None):
         self.n_clusters = n_clusters
         self.n_neighbors = n_neighbors
-        self.gamma = gamma
+
         self.affinity = affinity
+        if self.affinity == 'rbf' and gamma is None:
+            self.gamma = 1.0
+        else:
+            self.gamma = gamma
 
     def fit(self, X):
         """
@@ -15,9 +19,19 @@ class SpectralClustering:
         X: (n, d) array
         """
 
+        # Compute the distance matrix
+        distance_matrix = np.linalg.norm(X[:, None] - X, axis=2)
+
         # Compute the similarity matrix
         if self.affinity == 'rbf':
-            S = np.exp(-self.gamma * np.linalg.norm(X[:, None] - X, axis=2) ** 2)
+            S = np.exp(-self.gamma * distance_matrix ** 2)
+            
+        elif self.affinity == 'nearest_neighbors':
+            S = np.zeros((X.shape[0], X.shape[0]))
+            for i in range(X.shape[0]):
+                nearest_neighbors = np.argsort(distance_matrix[i])[:self.n_neighbors]
+                S[i, nearest_neighbors] = 1
+                S[nearest_neighbors, i] = 1
 
         # Compute the degree matrix
         D = np.diag(np.sum(S, axis=1))
@@ -38,8 +52,12 @@ class SpectralClustering:
 if __name__ == "__main__":
     # Test SpectralClustering and compare with sklearn
     from sklearn.cluster import SpectralClustering as SpectralClustering_sklearn
-    X = np.array([[1, 2], [1, 4], [1, 0],
-              [10, 2], [10, 4], [10, 0]])
+    from sklearn import datasets
+
+    n_samples = 500
+    X = datasets.make_circles(
+        n_samples=n_samples, factor=0.5, noise=0.05
+    )
     spectral = SpectralClustering(n_clusters=2)
     spectral_sklearn = SpectralClustering_sklearn(n_clusters=2)
 
