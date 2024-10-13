@@ -13,7 +13,7 @@ class SpectralClustering:
         else:
             self.gamma = gamma
 
-    def fit(self, X):
+    def fit(self, X, normalized=False):
         """
         params:
         X: (n, d) array
@@ -37,6 +37,9 @@ class SpectralClustering:
         D = np.diag(np.sum(S, axis=1))
         # Compute the Laplacian matrix
         L = D - S
+        if normalized:
+            D_sqrt_inv = np.diag(1 / np.sqrt(np.sum(S, axis=1)))
+            L = D_sqrt_inv @ L @ D_sqrt_inv
         # Compute the eigenvectors of the Laplacian matrix
         _, eigenvectors = np.linalg.eigh(L)
         # Select the eigenvectors corresponding to the smallest eigenvalues
