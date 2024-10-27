@@ -4,7 +4,7 @@ class LinearRegression():
     def __init__(self):
         pass
 
-    def fit(self, X, y, residual=False):
+    def fit(self, X, y, residual=False, solver="svd"):
         """
         Fit the linear regression model using Ordinary Least Squares (OLS) method.
         We assume the linear model
@@ -18,13 +18,18 @@ class LinearRegression():
         # Add a column of ones to X
         self.n_samples_, self.n_features_ = X.shape
         X = np.hstack([np.ones((self.n_samples_, 1)), X]) #(n, d+1)
+        if solver == "svd":
+            # Perform Singular Value Decomposition of X
+            U, S, Vt = np.linalg.svd(X, full_matrices=False)
+            X_pinv = np.dot(Vt.T / S, U.T)
 
-        # Perform Singular Value Decomposition of X
-        U, S, Vt = np.linalg.svd(X, full_matrices=False)
-        X_pinv = np.dot(Vt.T / S, U.T)
+            self.coef_ = np.dot(X_pinv, y)
 
-        # Compute the weights
-        self.coef_ = np.dot(X_pinv, y)
+        if solver == "qr":
+            # Perform QR decomposition of X
+            Q, R = np.linalg.qr(X)
+
+            self.coef_ = np.linalg.solve(R, np.dot(Q.T, y))
 
         # Compute the residuals
         if residual:
@@ -43,13 +48,21 @@ class LinearRegression():
 
 if __name__ == "__main__":
     import numpy as np
+    import time
     from sklearn.linear_model import LinearRegression as LinearRegression_sklearn
-    X = np.array([[1, 1], [1, 2], [2, 2], [2, 3]])
+    X = np.array([[1, 1], [1, 2], [2, 2], [2, 3], [3, 3], [3, 4]])
     # y = 1 * x_0 + 2 * x_1 + 3
     y = np.dot(X, np.array([1, 2])) + 3
     reg_sklearn = LinearRegression_sklearn().fit(X, y)
     print(reg_sklearn.coef_, reg_sklearn.intercept_)
 
     reg = LinearRegression()
-    reg.fit(X, y)
+    start = time.time()
+    reg.fit(X, y, residual=True)
+    print("Time: ", time.time() - start)
+    print(reg.coef_, reg.residuals_)
+
+    start = time.time()
+    reg.fit(X, y, solver="qr", residual=True)
+    print("Time: ", time.time() - start)
     print(reg.coef_, reg.residuals_)

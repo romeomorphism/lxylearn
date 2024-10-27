@@ -16,6 +16,8 @@ class PCA:
         """
         params:
         X: (n, d) array
+
+        The eigenvectors are computed by the singular value decomposition (SVD) of the data matrix X.
         """
         # Mean centering
         self.mean_ = np.mean(X, axis=0) #(d,)
