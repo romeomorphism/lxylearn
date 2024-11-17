@@ -80,8 +80,8 @@ def music_2d(domain_x, domain_y, signal, n_sources, L, n_omegas=100, show_plot=F
 
     if show_plot:
         import matplotlib.pyplot as plt
-        import scienceplots
-        plt.style.use(['science', 'grid', 'ieee'])
+        # import scienceplots
+        # plt.style.use(['science', 'grid', 'ieee'])
         plt.pcolormesh(omega_grid_X, omega_grid_Y, imaging_values, shading='auto')
         plt.colorbar()
         

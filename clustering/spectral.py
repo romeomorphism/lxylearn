@@ -43,13 +43,14 @@ class SpectralClustering:
         # Compute the eigenvectors of the Laplacian matrix
         _, eigenvectors = np.linalg.eigh(L)
         # Select the eigenvectors corresponding to the smallest eigenvalues
-        U = eigenvectors[:,:self.n_clusters]
+        self.U_ = eigenvectors[:,:self.n_clusters]
         # Normalize the eigenvectors
-        U = U / np.linalg.norm(U, axis=1)[:, None]
+        self.U_ = self.U_ / np.linalg.norm(self.U_, axis=1)[:, None]
 
         # Apply KMeans to the eigenvectors
         kmeans = KMeans(n_clusters=self.n_clusters)
-        kmeans.fit(U)
+        kmeans.fit(self.U_)
+        self.L_ = L
         self.labels_ = kmeans.labels_
 
 if __name__ == "__main__":
