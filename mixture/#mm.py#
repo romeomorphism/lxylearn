@@ -50,71 +50,17 @@ class GMM(MixtureModel):
 
         if centers is not None:
             self.centers = np.asarray(centers)
+            self.ndim = self.centers.shape[1]
 
         if sigma is not None:
             self.sigma = np.asarray(sigma)
-
-    def plot_pdf(self, n_grid_points=500, *grid):
-        """
-        Plot the PDF of the model
-        """
-        import matplotlib.pyplot as plt
-        import seaborn as sns
-        from scipy.stats import norm, multivariate_normal
-
-        if self.ndim == 1:
-            if len(grid) == 0:
-                x = np.linspace(-5, 5, n_grid_points)
-            elif len(grid) == 1:
-                x = grid[0]
-            else:
-                raise ValueError('grid must be a tuple with at most one element')
-            y = np.zeros_like(x)
-            for i in range(self.k):
-                y += self.weights[i] * norm.pdf(x, loc=self.centers[i], scale=self.sigma)
-            plt.plot(x, y)
-            plt.show()
-
-        elif self.ndim == 2:
-            if len(grid) == 0:
-                x = np.linspace(-5, 5, n_grid_points)
-                y = np.linspace(-5, 5, n_grid_points)
-            elif len(grid) == 2:
-                x, y = grid
-            else:
-                raise ValueError('grid must be a tuple with at most two elements')
-            X, Y = np.meshgrid(x, y)
-            pos = np.dstack((X, Y))
-            Z = np.zeros_like(X)
-            for i in range(self.k):
-                Z += self.weights[i] * multivariate_normal.pdf(pos, mean=self.centers[i], cov=self.sigma)
-            sns.heatmap(Z, xticklabels=False, yticklabels=False)
-            plt.show()
-        
-        else:
-            if len(grid) == 0:
-                x = np.linspace(-5, 5, n_grid_points)
-                y = np.linspace(-5, 5, n_grid_points)
-            elif len(grid) == 2:
-                x, y = grid
-            else:
-                raise ValueError('grid must be a tuple with at most two elements')
-            X, Y = np.meshgrid(x, y)
-            pos = np.dstack((X, Y))
-            Z = np.zeros_like(X)
-            for i in range(self.k):
-                Z += self.weights[i] * multivariate_normal.pdf(pos, mean=self.centers[i][:2], cov=self.sigma[:2,:2])
-            sns.heatmap(Z, xticklabels=False, yticklabels=False)
-            plt.show()
-            
 
     def sample(self, n_samples, latent=False):
         """generate samples from the model and store them into a nArray"""
         samples = np.zeros((n_samples, self.ndim))
         z = self.generate_labels(n_samples)
 
-        for i in range(self.k):
-            # samples += np.random.multivariate_normal(self.centers[i], self.sigmas[i], n_samples) * z[:,i].reshape((-1,1))
+        for i in range(self.
             samples += np.random.multivariate_normal(self.centers[i], self.sigma, n_samples) * z[:,i].reshape((-1,1))
         if latent:
             return samples, z
@@ -152,6 +98,8 @@ def cluster_means(samples_df):
     return samples_df.groupby('cluster').mean()
     
 
+
+
 if __name__ == '__main__':
     # Example
     k = 3
@@ -161,7 +109,7 @@ if __name__ == '__main__':
     gmm = GMM(k, ndim, centers=centers, sigma=sigma)
 
     samples = gmm.sample(1000)
-    print(samples)
+    print(sample
     print(samples.shape)
 
     df = gmm.sample_df(1000)
@@ -170,7 +118,3 @@ if __name__ == '__main__':
     print(df.shape)
     gmm.plot_cluster(cluster=1, n_samples=1000)
     print(cluster_means(df))
-    
-
-    model_1d = GMM(3, 1, centers=[-2, 0, 1], sigma=0.5)
-    model_1d.plot_pdf()
