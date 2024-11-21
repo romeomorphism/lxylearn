@@ -37,6 +37,7 @@ class MixtureModel(metaclass=ABCMeta):
 
     @abstractmethod
     def plot_cluster(self, cluster=0, n_samples=1000):
+        """Highlight one particular cluster in the plot"""
         pass
 
 
@@ -132,7 +133,7 @@ class GMM(MixtureModel):
         return df
     
     def plot_cluster(self, cluster=0, n_samples=1000):
-
+        """highlight one particular cluster in the plot and show the mean of the cluster"""
         if cluster >= self.k:
             raise ValueError(f'cluster must be less than {self.k}')
         
@@ -171,6 +172,5 @@ if __name__ == '__main__':
     gmm.plot_cluster(cluster=1, n_samples=1000)
     print(cluster_means(df))
     
-
     model_1d = GMM(3, 1, centers=[-2, 0, 1], sigma=0.5)
     model_1d.plot_pdf()

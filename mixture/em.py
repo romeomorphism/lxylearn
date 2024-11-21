@@ -1,5 +1,5 @@
 import numpy as np
-from .gmm import GMM
+from .mm import GMM
 
 class EM():
     def __init__(self, k, eps=1e-5, max_iter=5000):
